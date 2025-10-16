@@ -1,13 +1,35 @@
 const express = require('express');
-const app = express();
-const port = 5000;
 const cors = require('cors');
-app.use(cors());
+const app = express();
+const PORT = 3001;
+const bookRoutes = require('./routes/books');
 
-app.get('/', (req, res) => {
-res.json({ message: 'Hello from Node.js Server!' });
+// 🟢 Middleware utama
+app.use(cors());
+app.use(express.json());
+
+// 🟢 Middleware logging
+app.use((req, res, next) => {
+  const timestamp = new Date().toISOString();
+  console.log('[${timestamp}] ${req.method} ${req.url}');
+  next();
 });
 
-app.listen(port, () => {
-console.log(`Server running on http://localhost:${port}`);
+// 🟢 Routing
+app.use('/api/books', bookRoutes);
+
+// 🟠 404 Handler (Not Found)
+app.use((req, res, next) => {
+  res.status(404).json({ message: 'Route not found' });
+});
+
+// 🔴 Global Error Handler
+app.use((err, req, res, next) => {
+  console.error('Error:', err.stack);
+  res.status(500).json({ message: 'Internal Server Error' });
+});
+
+// 🟢 Jalankan server
+app.listen(PORT, () => {
+console.log(`Server running at http://localhost:${PORT}/`);
 });
