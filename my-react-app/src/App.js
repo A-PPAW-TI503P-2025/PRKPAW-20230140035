@@ -25,9 +25,3 @@ function App() {
   );
 }
 export default App;
-
-
-// Catatan:
-// 1. Pastikan server Node.js berjalan di http://localhost:5000
-// 2. Jalankan aplikasi React dengan `npm start` di direktori my-react-app
-// 3. Pastikan CORS diaktifkan di server Node.js jika diperlukan
