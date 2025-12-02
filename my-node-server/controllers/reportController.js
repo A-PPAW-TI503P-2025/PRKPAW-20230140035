@@ -1,40 +1,35 @@
-// <--- 1. IMPOR MODEL ANDA
-// Pastikan Anda mengimpor model dari database
-// Sesuaikan nama 'Presensi' jika nama file model Anda berbeda
-const { Presensi } = require('../models');
+const { Presensi, User } = require("../models");
 const { Op } = require("sequelize");
+
+const { format } = require("date-fns-tz");
 
 exports.getDailyReport = async (req, res) => {
   try {
-    const { nama, tanggalMulai, tanggalSelesai } = req.query;
+    const { nama } = req.query;
 
-    let options = { where: {} };
-    
-     if (nama) {
-      options.where.nama = {
-        [Op.like]: `%${nama}%`,
-      };
-    }
+    let options = {
+      include: [
+        {
+          model: User,
+          as: "user",
+          attributes: ["nama"],
+        },
+      ],
+    };
 
-    if (tanggalMulai && tanggalSelesai) {
-      options.where.checkIn = {
-        [Op.between]: [new Date(tanggalMulai), new Date(tanggalSelesai)],
-      };
-    } else if (tanggalMulai) {
-      options.where.checkIn = {
-        [Op.gte]: new Date(tanggalMulai),
-      };
-    } else if (tanggalSelesai) {
-      options.where.checkIn = {
-        [Op.lte]: new Date(tanggalSelesai),
+    if (nama) {
+      // Baris ini akan error jika 'Op' tidak diimpor
+      options.include[0].where = {
+        nama: {
+          [Op.like]: `%${nama}%`,
+        },
       };
     }
 
     const records = await Presensi.findAll(options);
 
     res.json({
-      reportDate: new Date().toLocaleDateString("id-ID"),
-      filter: { nama, tanggalMulai, tanggalSelesai },
+      reportDate: new Date().toLocaleDateString(),
       data: records,
     });
   } catch (error) {

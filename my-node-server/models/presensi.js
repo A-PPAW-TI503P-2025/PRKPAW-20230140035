@@ -2,23 +2,33 @@
 const {
   Model
 } = require('sequelize');
-
 module.exports = (sequelize, DataTypes) => {
   class Presensi extends Model {
+ 
     static associate(models) {
-      // define association here
-    }
-  }
+  Presensi.belongsTo(models.User, {
+    foreignKey: 'userId', 
+    as: 'user' 
+  });
+}
 
+  }
   Presensi.init({
-    userId: DataTypes.INTEGER,
-    nama: DataTypes.STRING,
-    checkIn: DataTypes.DATE,
-    checkOut: DataTypes.DATE,
+    userId: {
+      type: DataTypes.INTEGER,
+      allowNull: false,
+    },
+    checkIn: {
+      type: DataTypes.DATE,
+      allowNull: false,
+    },
+    checkOut: {
+      type: DataTypes.DATE,
+      allowNull: true, // Boleh null
+    }
   }, {
     sequelize,
     modelName: 'Presensi',
   });
-
   return Presensi;
 };

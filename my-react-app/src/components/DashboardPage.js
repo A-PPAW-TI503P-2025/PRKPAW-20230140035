@@ -1,7 +1,5 @@
 import React, { useEffect, useState, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
-// Gunakan metode manual decoding dari kode perbaikan sebelumnya
-// Jika Anda sudah menginstal 'jwt-decode', ganti dengan: import { jwtDecode } from 'jwt-decode';
 
 function DashboardPage() {
   // useNavigate ASLI kini digunakan di sini:
