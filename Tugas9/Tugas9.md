@@ -1,7 +1,7 @@
 # Tugas 9
 
 1. Tampilan Endpoint Check-in Berhasil
-![Tampilan Endpoint Login](SS/Checkin.png )
+![Tampilan Endpoint Che](SS/Checkin.png )
 
 2. Tampilan Endpoint Check-out Berhasil
 ![Tampilan Endpoint Register](SS/Checkout.png)

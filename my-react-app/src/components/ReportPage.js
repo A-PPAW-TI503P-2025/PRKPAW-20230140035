@@ -16,29 +16,23 @@ function ReportPage() {
     }
 
     try {
-      const config = {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      };
-
+      const config = { headers: { Authorization: `Bearer ${token}` } };
       const baseUrl = "http://localhost:3001/api/reports/daily";
-      const url = query ? `${baseUrl}?nama=${query}` : baseUrl;
-
+      const url = query ? `${baseUrl}?nama=${encodeURIComponent(query)}` : baseUrl;
       const response = await axios.get(url, config);
-      setReports(response.data.data);
+
+      setReports(response.data.data || []);
       setError(null);
     } catch (err) {
       setReports([]);
-      setError(
-        err.response ? err.response.data.message : "Gagal mengambil data"
-      );
+      setError(err.response?.data?.message || "Gagal mengambil data");
     }
   };
 
   useEffect(() => {
     fetchReports("");
   }, [navigate]);
+
   const handleSearchSubmit = (e) => {
     e.preventDefault();
     fetchReports(searchTerm);
@@ -46,21 +40,20 @@ function ReportPage() {
 
   return (
     <div className="max-w-6xl mx-auto p-8">
-      <h1 className="text-3xl font-bold text-gray-800 mb-6">
-        Laporan Presensi Harian
-      </h1>
+      <h1 className="text-3xl font-bold text-gray-800 mb-6">Laporan Presensi Harian</h1>
 
+      {/* Form Search */}
       <form onSubmit={handleSearchSubmit} className="mb-6 flex space-x-2">
         <input
           type="text"
           placeholder="Cari berdasarkan nama..."
           value={searchTerm}
           onChange={(e) => setSearchTerm(e.target.value)}
-          className="flex-grow px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+          className="flex-grow px-3 py-2 border rounded-md"
         />
         <button
           type="submit"
-          className="py-2 px-4 bg-blue-600 text-white font-semibold rounded-md shadow-sm hover:bg-blue-700"
+          className="py-2 px-4 bg-blue-600 text-white font-semibold rounded-md"
         >
           Cari
         </button>
@@ -70,69 +63,96 @@ function ReportPage() {
         <p className="text-red-600 bg-red-100 p-4 rounded-md mb-4">{error}</p>
       )}
 
-      {!error && (
-        <div className="bg-white shadow-md rounded-lg overflow-hidden">
-          <table className="min-w-full divide-y divide-gray-200">
-            <thead className="bg-gray-50">
-              <tr>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Nama
-                </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Check-In
-                </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Check-Out
-                </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Latitude
-                </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Longitude
-                </th>
-              </tr>
-            </thead>
-            <tbody className="bg-white divide-y divide-gray-200">
-              {reports.length > 0 ? (
-                reports.map((presensi) => (
-                  <tr key={presensi.id}>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                      {presensi.user ? presensi.user.nama : "N/A"}
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                      {new Date(presensi.checkIn).toLocaleString("id-ID", {
-                        timeZone: "Asia/Jakarta",
-                      })}
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                      {presensi.checkOut
-                        ? new Date(presensi.checkOut).toLocaleString("id-ID", {
-                            timeZone: "Asia/Jakarta",
-                          })
-                        : "Belum Check-Out"}
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                      {presensi.latitude || "N/A"}
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                      {presensi.longitude || "N/A"}
-                    </td>
-                  </tr>
-                ))
-              ) : (
-                <tr>
-                  <td
-                    colSpan="3"
-                    className="px-6 py-4 text-center text-gray-500"
-                  >
-                    Tidak ada data yang ditemukan.
+      <div className="bg-white shadow-md rounded-lg overflow-hidden">
+        <table className="min-w-full divide-y divide-gray-200">
+          <thead className="bg-gray-50">
+            <tr>
+              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                Nama
+              </th>
+              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                Check-In
+              </th>
+              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                Check-Out
+              </th>
+              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                Latitude
+              </th>
+              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                Longitude
+              </th>
+              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                Bukti Foto
+              </th>
+            </tr>
+          </thead>
+
+          <tbody className="bg-white divide-y divide-gray-200">
+            {reports.length > 0 ? (
+              reports.map((presensi) => (
+                <tr key={presensi.id}>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                    {presensi.user ? presensi.user.nama : "N/A"}
+                  </td>
+
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                    {presensi.checkIn
+                      ? new Date(presensi.checkIn).toLocaleString("id-ID", {
+                          timeZone: "Asia/Jakarta",
+                        })
+                      : "-"}
+                  </td>
+
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                    {presensi.checkOut
+                      ? new Date(presensi.checkOut).toLocaleString("id-ID", {
+                          timeZone: "Asia/Jakarta",
+                        })
+                      : "Belum Check-Out"}
+                  </td>
+
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                    {presensi.latitude || "N/A"}
+                  </td>
+
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                    {presensi.longitude || "N/A"}
+                  </td>
+
+                  {/* Bukti Foto */}
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                    {presensi.buktiFoto ? (
+                      <img
+                        src={`http://localhost:3001/${presensi.buktiFoto}`}
+                        alt="Bukti Foto"
+                        className="w-20 h-20 object-cover rounded cursor-pointer"
+                        onClick={() =>
+                          window.open(
+                            `http://localhost:3001/${presensi.buktiFoto}`,
+                            "_blank"
+                          )
+                        }
+                      />
+                    ) : (
+                      "Tidak Ada"
+                    )}
                   </td>
                 </tr>
-              )}
-            </tbody>
-          </table>
-        </div>
-      )}
+              ))
+            ) : (
+              <tr>
+                <td
+                  colSpan="6"
+                  className="px-6 py-4 text-center text-gray-500"
+                >
+                  Tidak ada data yang ditemukan.
+                </td>
+              </tr>
+            )}
+          </tbody>
+        </table>
+      </div>
     </div>
   );
 }
